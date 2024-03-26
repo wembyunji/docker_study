@@ -1,0 +1,41 @@
+---
+version: '3.7'
+services:
+  tomcat:
+    image: tomcat:8-jdk8-corretto
+    container_name: 223test2_tomcat_container
+    ports:
+      - 8881:8080
+    restart: on-failure
+    depends_on:
+      - db
+    networks:
+      - eb_223test2
+    volumes:
+      - 223test2_tomcat_volume:/opt/tomcat/webapps/
+      - ./admin.war:/usr/local/tomcat/webapps/admin.war
+      - ./renobit.war:/usr/local/tomcat/webapps/renobit.war
+      - ./startup-script.sh:/usr/local/tomcat/startup-script.sh
+    command: /bin/bash -c "chmod +x /usr/local/tomcat/startup-script.sh && /usr/local/tomcat/startup-script.sh && exec /usr/local/tomcat/bin/catalina.sh run"
+  db:
+    image: postgres:13
+    container_name: 223test2_postgre_container
+    ports:
+      - 5482:5432
+    volumes:
+      - 223test2_pg_volume:/var/lib/postgresql/
+    environment:
+      POSTGRES_USER: "wemb"
+      POSTGRES_PASSWORD: "wemb"
+      POSTGRES_DB: "renobit"
+      ALLOW_IP_RANGE: "0.0.0.0/0"
+    restart: always
+    networks:
+      - eb_223test2
+
+
+volumes:
+  223test2_tomcat_volume:
+  223test2_pg_volume:
+networks:
+  eb_223test2:
